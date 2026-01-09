@@ -1,54 +1,92 @@
 #include <stdio.h>
+#include <stdlib.h>
+
 
 int main() {
 
     int tabuleiro[10][10];
     int i, j;
 
-    // Inicializa o tabuleiro com 0 (água)
+    // ================= TABULEIRO BASE =================
     for (i = 0; i < 10; i++) {
         for (j = 0; j < 10; j++) {
             tabuleiro[i][j] = 0;
         }
     }
+    // ================= MATRIZES DE HABILIDADE =================
+    int cone[5][5];
+    int cruz[5][5];
+    int octaedro[5][5];
 
-    // ===== Navio 1 - Horizontal =====
-    int linha1 = 1, coluna1 = 2;
-    for (i = 0; i < 3; i++) {
-        if (coluna1 + i < 10 && tabuleiro[linha1][coluna1 + i] == 0) {
-            tabuleiro[linha1][coluna1 + i] = 3;
+    // ===== Cone (apontado para baixo) =====
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 5; j++) {
+            if (j >= 2 - i && j <= 2 + i && i <= 2)
+                cone[i][j] = 1;
+            else
+                cone[i][j] = 0;
         }
     }
 
-    // ===== Navio 2 - Vertical =====
-    int linha2 = 4, coluna2 = 6;
-    for (i = 0; i < 3; i++) {
-        if (linha2 + i < 10 && tabuleiro[linha2 + i][coluna2] == 0) {
-            tabuleiro[linha2 + i][coluna2] = 3;
+    // ===== Cruz =====
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 5; j++) {
+            if (i == 2 || j == 2)
+                cruz[i][j] = 1;
+            else
+                cruz[i][j] = 0;
         }
     }
 
-    // ===== Navio 3 - Diagonal principal (\) =====
-    int linha3 = 0, coluna3 = 0;
-    for (i = 0; i < 3; i++) {
-        if (linha3 + i < 10 && coluna3 + i < 10 &&
-            tabuleiro[linha3 + i][coluna3 + i] == 0) {
-            tabuleiro[linha3 + i][coluna3 + i] = 3;
+    // ===== Octaedro (losango) =====
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 5; j++) {
+            if (abs(i - 2) + abs(j - 2) <= 2)
+                octaedro[i][j] = 1;
+            else
+                octaedro[i][j] = 0;
         }
     }
 
-    // ===== Navio 4 - Diagonal secundária (/) =====
-    int linha4 = 0, coluna4 = 9;
-    for (i = 0; i < 3; i++) {
-        if (linha4 + i < 10 && coluna4 - i >= 0 &&
-            tabuleiro[linha4 + i][coluna4 - i] == 0) {
-            tabuleiro[linha4 + i][coluna4 - i] = 3;
+    // ================= SOBREPOR HABILIDADES =================
+    int origemConeL = 5, origemConeC = 2;
+    int origemCruzL = 7, origemCruzC = 7;
+    int origemOctL  = 3, origemOctC  = 5;
+
+    // Função inline de sobreposição (manual)
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 5; j++) {
+
+            int l, c;
+
+            // Cone
+            l = origemConeL + i - 2;
+            c = origemConeC + j - 2;
+            if (cone[i][j] == 1 && l >= 0 && l < 10 && c >= 0 && c < 10) {
+                if (tabuleiro[l][c] == 0)
+                    tabuleiro[l][c] = 5;
+            }
+
+            // Cruz
+            l = origemCruzL + i - 2;
+            c = origemCruzC + j - 2;
+            if (cruz[i][j] == 1 && l >= 0 && l < 10 && c >= 0 && c < 10) {
+                if (tabuleiro[l][c] == 0)
+                    tabuleiro[l][c] = 5;
+            }
+
+            // Octaedro
+            l = origemOctL + i - 2;
+            c = origemOctC + j - 2;
+            if (octaedro[i][j] == 1 && l >= 0 && l < 10 && c >= 0 && c < 10) {
+                if (tabuleiro[l][c] == 0)
+                    tabuleiro[l][c] = 5;
+            }
         }
     }
 
-    /// ===== EXIBE O TABULEIRO =====
-    printf("Tabuleiro Batalha Naval\n\n");
-
+    // ================= EXIBIÇÃO =================
+    printf("Tabuleiro com Habilidades\n\n");
     printf("   ");
     for (j = 0; j < 10; j++) {
         printf("%c ", 'A' + j);
